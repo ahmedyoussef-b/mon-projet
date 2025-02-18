@@ -24,24 +24,8 @@ interface SpeechRecognitionEvent extends Event {
 const useSpeechRecognition = () => {
   const [text, setText] = useState<string>("");
   const [isListening, setIsListening] = useState<boolean>(false);
-  const [isVocalMode, setIsVocalMode] = useState<boolean>(false); // Attend le mot "écoute"
+  const [isVocalMode, setIsVocalMode] = useState<boolean>(false);
   const recognitionRef = useRef<SpeechRecognition | null>(null);
-
-  // Démarrer l'écoute
-  const startListening = useCallback(() => {
-    if (recognitionRef.current) {
-      recognitionRef.current.start();
-      setIsListening(true);
-    }
-  }, []);
-
-  // Arrêter l'écoute
-  const stopListening = useCallback(() => {
-    if (recognitionRef.current) {
-      recognitionRef.current.stop();
-      setIsListening(false);
-    }
-  }, []);
 
   useEffect(() => {
     if (!("webkitSpeechRecognition" in window)) {
@@ -70,13 +54,16 @@ const useSpeechRecognition = () => {
         .toLowerCase();
       setText(transcript);
 
-      // Déclenchement selon le mot détecté
-      if (isVocalMode) {
-        if (!isListening && transcript.includes("écoute")) {
-          startListening();
-        } else if (isListening && transcript.includes("répond")) {
-          stopListening();
-        }
+      // Activation de l'écoute après le mot "écoute"
+      if (isVocalMode && transcript.includes("écoute") && !isListening) {
+        recognition.start();
+        setIsListening(true);
+      }
+
+      // Désactivation après le mot "répond"
+      if (isListening && transcript.includes("répond")) {
+        recognition.stop();
+        setIsListening(false);
       }
     };
 
@@ -86,20 +73,25 @@ const useSpeechRecognition = () => {
     return () => {
       recognition.stop();
     };
-  }, [isVocalMode, isListening, startListening, stopListening]); // Ajout des dépendances nécessaires
+  }, [isVocalMode, isListening]); // Suppression des callbacks pour éviter les erreurs eslint
 
-  // Active le mode vocal (attente du mot "écoute")
+  // Active le mode vocal, mais attend "écoute" pour démarrer l'écoute réelle
   const enableVocalMode = useCallback(() => {
     setIsVocalMode(true);
     setText("Mode vocal activé. Dites 'écoute' pour commencer.");
+    if (recognitionRef.current) {
+      recognitionRef.current.start();
+    }
   }, []);
 
   // Désactive complètement le mode vocal
   const disableVocalMode = useCallback(() => {
     setIsVocalMode(false);
-    stopListening();
+    if (recognitionRef.current) {
+      recognitionRef.current.stop();
+    }
     setText("Mode vocal désactivé.");
-  }, [stopListening]);
+  }, []);
 
   return { text, isListening, enableVocalMode, disableVocalMode };
 };
