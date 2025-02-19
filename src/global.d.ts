@@ -1,11 +1,25 @@
 // /src/global.d.ts
+export {};
+
 declare global {
   interface Window {
-    webkitSpeechRecognition: new () => SpeechRecognition;
+    SpeechRecognition: typeof SpeechRecognition | undefined;
+    webkitSpeechRecognition: typeof SpeechRecognition | undefined;
   }
 
   interface SpeechRecognitionEvent extends Event {
     results: SpeechRecognitionResultList;
+  }
+
+  interface SpeechRecognition extends EventTarget {
+    continuous: boolean;
+    interimResults: boolean;
+    lang: string;
+    start: () => void;
+    stop: () => void;
+    onresult: (event: SpeechRecognitionEvent) => void;
+    onstart: () => void;
+    onend: () => void;
   }
 
   interface SpeechRecognitionResultList {
@@ -24,16 +38,5 @@ declare global {
   interface SpeechRecognitionAlternative {
     transcript: string;
     confidence: number;
-  }
-
-  interface SpeechRecognition extends EventTarget {
-    continuous: boolean;
-    interimResults: boolean;
-    lang: string;
-    start: () => void;
-    stop: () => void;
-    onresult: (event: SpeechRecognitionEvent) => void;
-    onstart: () => void;
-    onend: () => void;
   }
 }
