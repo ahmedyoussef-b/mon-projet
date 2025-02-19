@@ -3,7 +3,7 @@
 "use client";
 
 import { useState, useEffect, useRef, useCallback } from "react";
-import { useRouter } from "next/navigation"; // ✅ Utilisation correcte dans un hook client
+import { useRouter } from "next/navigation";
 
 interface SpeechRecognition extends EventTarget {
   continuous: boolean;
@@ -21,7 +21,7 @@ interface SpeechRecognitionEvent extends Event {
 }
 
 export const useSpeechRecognition = () => {
-  const router = useRouter(); // ✅ Déclaration en haut pour éviter les erreurs
+  const router = useRouter();
   const [text, setText] = useState<string>("");
   const [isListening, setIsListening] = useState<boolean>(false);
   const [isVocalMode, setIsVocalMode] = useState<boolean>(false);
@@ -33,10 +33,9 @@ export const useSpeechRecognition = () => {
       return;
     }
 
-    // Initialisation de l'API SpeechRecognition
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const SpeechRecognitionAPI = (window as any).webkitSpeechRecognition as {
-      new (): SpeechRecognition;
+      new(): SpeechRecognition;
     };
     recognitionRef.current = new SpeechRecognitionAPI();
 
@@ -52,8 +51,6 @@ export const useSpeechRecognition = () => {
         .trim()
         .toLowerCase();
       setText(transcript);
-
-      // ✅ Vérifier et exécuter les commandes vocales
       HandleSpeechCommands(transcript);
     };
 
@@ -63,7 +60,7 @@ export const useSpeechRecognition = () => {
     return () => {
       recognition.stop();
     };
-  }, []); // ✅ Exécuter seulement au montage du composant
+  }, []);
 
   const enableVocalMode = useCallback(() => {
     setIsVocalMode(true);
@@ -95,6 +92,7 @@ export const useSpeechRecognition = () => {
   return {
     text,
     isListening,
+    isVocalMode,
     enableVocalMode,
     disableVocalMode,
   };
