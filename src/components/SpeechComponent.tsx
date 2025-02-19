@@ -1,20 +1,17 @@
 // src/components/SpeechComponent.tsx
-import { useSpeechRecognition } from '../hooks/useSpeechRecognition';
+import React from "react";
+import { useSpeechRecognition } from "@/hooks/useSpeechRecognition"; // Chemin d'accès au fichier
 
 const SpeechComponent = () => {
     const { text, isListening, startListening, stopListening } = useSpeechRecognition();
 
     return (
         <div>
-            <h1>Reconnaissance vocale</h1>
-            <p>{text}</p>
-
-            <div>
-                {!isListening && <button onClick={startListening}>Activer l&apos;écoute</button>}
-                {isListening && <button onClick={stopListening}>Désactiver l&apos;écoute</button>}
-            </div>
-
-            {isListening && <p>Écoute en cours...</p>}
+            <h2>Reconnaissance vocale</h2>
+            <p>{isListening ? "Écoute en cours..." : "En attente de votre question..."}</p>
+            <p>Texte capturé : {text}</p>
+            <button onClick={startListening} disabled={isListening}>Démarrer</button>
+            <button onClick={stopListening} disabled={!isListening}>Arrêter</button>
         </div>
     );
 };

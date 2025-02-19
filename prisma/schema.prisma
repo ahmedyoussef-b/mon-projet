@@ -17,8 +17,16 @@ model User {
   email String @unique
   name  String?
 }
-model Response {
-  id   Int    @id @default(autoincrement())
-  text String
-  createdAt DateTime @default(now())
+model Question {
+  id       String   @id @default(cuid())
+  content  String   @unique // Déclare content comme unique
+  reponse  Reponse?
 }
+
+model Reponse {
+  id        String  @id @default(cuid())
+  content   String
+  question  Question  @relation(fields: [questionId], references: [id])
+  questionId String   @unique
+}
+
