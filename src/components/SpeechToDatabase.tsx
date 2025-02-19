@@ -4,23 +4,22 @@ import { useState } from "react";
 import { useSpeechRecognition } from "@/hooks/useSpeechRecognition";
 
 export default function SpeechToDatabase() {
-    const { text, isListening, startListening, stopListening, mode } =
+    const { text, isListening, startListening, stopListening, saveResponse } =
         useSpeechRecognition();
-    const [currentQuestion, setCurrentQuestion] = useState<string | null>(null);
+    const [mode, setMode] = useState<"question" | "reponse">("question"); // Gérer `mode` localement
 
-    const saveToDatabase = async () => {
+    const handleStartListening = (newMode: "question" | "reponse") => {
+        setMode(newMode); // Mettre à jour `mode` localement
+        startListening(); // Démarrer la reconnaissance vocale
+    };
+
+    const handleSaveToDatabase = async () => {
         if (mode === "question") {
-            setCurrentQuestion(text);
-            await fetch("/api/question", {
-                method: "POST",
-                body: JSON.stringify({ question: text }),
-            });
-        } else if (mode === "reponse" && currentQuestion) {
-            await fetch("/api/reponse", {
-                method: "POST",
-                body: JSON.stringify({ question: currentQuestion, reponse: text }),
-            });
-            setCurrentQuestion(null);
+            // Enregistrer la question
+            await saveResponse();
+        } else if (mode === "reponse") {
+            // Enregistrer la réponse
+            await saveResponse();
         }
     };
 
@@ -39,15 +38,15 @@ export default function SpeechToDatabase() {
 
             <div className="mt-4 flex gap-4">
                 <button
-                    onClick={() => startListening("question")}
+                    onClick={() => handleStartListening("question")}
                     disabled={isListening}
                     className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600"
                 >
                     ❓ Enregistrer Question
                 </button>
                 <button
-                    onClick={() => startListening("reponse")}
-                    disabled={isListening || !currentQuestion}
+                    onClick={() => handleStartListening("reponse")}
+                    disabled={isListening}
                     className="px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600"
                 >
                     ✅ Enregistrer Réponse
@@ -62,7 +61,7 @@ export default function SpeechToDatabase() {
             </div>
 
             <button
-                onClick={saveToDatabase}
+                onClick={handleSaveToDatabase}
                 disabled={!text}
                 className="mt-4 px-4 py-2 bg-purple-500 text-white rounded-lg hover:bg-purple-600"
             >

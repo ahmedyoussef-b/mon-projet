@@ -1,22 +1,30 @@
-import { NextApiRequest, NextApiResponse } from "next";
-import prisma from "@/lib/prisma"; // Assurez-vous que ce fichier est bien configuré
+// /src/app/api/reponse/route.ts
+import { NextResponse } from "next/server";
+import { prisma } from "@/lib/prisma";
 
-export default async function handler(
-  req: NextApiRequest,
-  res: NextApiResponse
-) {
-  if (req.method !== "POST") {
-    return res.status(405).json({ message: "Méthode non autorisée" });
-  }
-
+export async function POST(req: Request) {
   try {
-    const { text } = req.body;
-    const response = await prisma.response.create({
-      data: { text },
+    const { content, questionId } = await req.json();
+
+    if (!content || !questionId) {
+      return NextResponse.json(
+        { message: "Les champs 'content' et 'questionId' sont requis" },
+        { status: 400 }
+      );
+    }
+
+    const response = await prisma.reponse.create({
+      data: {
+        content,
+        question: {
+          connect: { id: questionId }, // Associe la réponse à une question existante
+        },
+      },
     });
 
-    return res.status(200).json(response);
+    return NextResponse.json(response, { status: 201 });
   } catch (error) {
-    return res.status(500).json({ message: "Erreur serveur", error });
+    console.error("Erreur API reponse :", error);
+    return NextResponse.json({ message: "Erreur serveur" }, { status: 500 });
   }
 }
