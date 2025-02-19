@@ -21,8 +21,7 @@ interface SpeechRecognition extends EventTarget {
 export const useSpeechRecognition = () => {
   const router = useRouter();
   const [text, setText] = useState<string>(""); // Texte reconnu
-  const [isListening, setIsListening] = useState<boolean>(false); // État de l'écoute
-  const [isVocalMode, setIsVocalMode] = useState<boolean>(false); // État du mode vocal
+  const [isListening, setIsListening] = useState<boolean>(false); // État du micro
   const recognitionRef = useRef<SpeechRecognition | null>(null);
 
   useEffect(() => {
@@ -54,54 +53,42 @@ export const useSpeechRecognition = () => {
     };
 
     recognition.onstart = () => setIsListening(true); // L'écoute démarre
-    recognition.onend = () => {
-      if (isVocalMode) {
-        // Si le mode vocal est activé, on redémarre la reconnaissance
-        recognition.start();
-      } else {
-        setIsListening(false); // L'écoute s'arrête uniquement si le mode vocal est désactivé
-      }
-    };
+    recognition.onend = () => setIsListening(false); // L'écoute s'arrête uniquement si l'utilisateur arrête manuellement
 
     return () => {
       recognition.stop();
     };
-  }, [isVocalMode]);
-
-  const enableVocalMode = useCallback(() => {
-    setIsVocalMode(true);
-    setText("Mode vocal activé. Dites 'écoute' pour commencer.");
-    recognitionRef.current?.start(); // Démarre la reconnaissance vocale
   }, []);
 
-  const disableVocalMode = useCallback(() => {
-    setIsVocalMode(false);
-    recognitionRef.current?.stop(); // Arrête la reconnaissance vocale
-    setText("Mode vocal désactivé.");
+  const startListening = useCallback(() => {
+    recognitionRef.current?.start(); // Active l'écoute
+    setIsListening(true);
+  }, []);
+
+  const stopListening = useCallback(() => {
+    recognitionRef.current?.stop(); // Désactive l'écoute
+    setIsListening(false);
   }, []);
 
   const HandleSpeechCommands = useCallback(
     async (command: string) => {
       if (command.includes("manœuvre")) {
-        router.push("/manoeuvres"); // Redirige vers la page des manœuvres
+        router.push("/manoeuvres");
       } else if (command.includes("alarme")) {
-        router.push("/alarmes"); // Redirige vers la page des alarmes
+        router.push("/alarmes");
       } else if (command.includes("rapport")) {
-        router.push("/rapports"); // Redirige vers la page des rapports
+        router.push("/rapports");
       } else if (command.includes("home")) {
-        router.push("/"); // Redirige vers la page d'accueil
+        router.push("/");
       } else if (command.includes("répond")) {
-        // Insérer une réponse dans la base de données avec Prisma
         await prisma.response.create({
           data: {
             text: "Voici la réponse à votre demande.",
           },
         });
 
-        // Affichage de la réponse sur l'écran
         setText("Voici la réponse à votre demande.");
 
-        // Réponse vocale (facultatif)
         const speech = new SpeechSynthesisUtterance("Voici la réponse à votre demande.");
         window.speechSynthesis.speak(speech);
       }
@@ -112,8 +99,7 @@ export const useSpeechRecognition = () => {
   return {
     text,
     isListening,
-    isVocalMode,
-    enableVocalMode,
-    disableVocalMode,
+    startListening,
+    stopListening,
   };
 };
