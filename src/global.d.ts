@@ -1,4 +1,4 @@
-declare global {
+{/*declare global {
   interface Window {
     webkitSpeechRecognition: new () => SpeechRecognition;
   }
@@ -36,3 +36,4 @@ declare global {
     onend: () => void;
   }
 }
+*/}

@@ -1,10 +1,10 @@
-// Path: src/hooks/useSpeechRecognition.ts
 
-/// <reference lib="dom" />
+///src/hkoos / useSpeechRecognition.ts;
+"use client";
 
 import { useState, useEffect, useRef, useCallback } from "react";
+import { useRouter } from "next/navigation"; // ✅ Utilisation correcte dans un hook client
 
-// Interface pour SpeechRecognition
 interface SpeechRecognition extends EventTarget {
   continuous: boolean;
   interimResults: boolean;
@@ -16,12 +16,12 @@ interface SpeechRecognition extends EventTarget {
   onend: (() => void) | null;
 }
 
-// Interface pour SpeechRecognitionEvent
 interface SpeechRecognitionEvent extends Event {
   results: SpeechRecognitionResultList;
 }
 
-const useSpeechRecognition = () => {
+export const useSpeechRecognition = () => {
+  const router = useRouter(); // ✅ Déclaration en haut pour éviter les erreurs
   const [text, setText] = useState<string>("");
   const [isListening, setIsListening] = useState<boolean>(false);
   const [isVocalMode, setIsVocalMode] = useState<boolean>(false);
@@ -33,6 +33,7 @@ const useSpeechRecognition = () => {
       return;
     }
 
+    // Initialisation de l'API SpeechRecognition
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const SpeechRecognitionAPI = (window as any).webkitSpeechRecognition as {
       new (): SpeechRecognition;
@@ -47,24 +48,13 @@ const useSpeechRecognition = () => {
     recognition.lang = "fr-FR";
 
     recognition.onresult = (event: SpeechRecognitionEvent) => {
-      if (!recognitionRef.current) return;
-
       const transcript = event.results[event.results.length - 1][0].transcript
         .trim()
         .toLowerCase();
       setText(transcript);
 
-      // Activation de l'écoute après le mot "écoute"
-      if (isVocalMode && transcript.includes("écoute") && !isListening) {
-        recognition.start();
-        setIsListening(true);
-      }
-
-      // Désactivation après le mot "répond"
-      if (isListening && transcript.includes("répond")) {
-        recognition.stop();
-        setIsListening(false);
-      }
+      // ✅ Vérifier et exécuter les commandes vocales
+      HandleSpeechCommands(transcript);
     };
 
     recognition.onstart = () => setIsListening(true);
@@ -73,27 +63,39 @@ const useSpeechRecognition = () => {
     return () => {
       recognition.stop();
     };
-  }, [isVocalMode, isListening]); // Suppression des callbacks pour éviter les erreurs eslint
+  }, []); // ✅ Exécuter seulement au montage du composant
 
-  // Active le mode vocal, mais attend "écoute" pour démarrer l'écoute réelle
   const enableVocalMode = useCallback(() => {
     setIsVocalMode(true);
     setText("Mode vocal activé. Dites 'écoute' pour commencer.");
-    if (recognitionRef.current) {
-      recognitionRef.current.start();
-    }
+    recognitionRef.current?.start();
   }, []);
 
-  // Désactive complètement le mode vocal
   const disableVocalMode = useCallback(() => {
     setIsVocalMode(false);
-    if (recognitionRef.current) {
-      recognitionRef.current.stop();
-    }
+    recognitionRef.current?.stop();
     setText("Mode vocal désactivé.");
   }, []);
 
-  return { text, isListening, enableVocalMode, disableVocalMode };
-};
+  const HandleSpeechCommands = useCallback(
+    (command: string) => {
+      if (command.includes("manœuvre")) {
+        router.push("/manoeuvres");
+      } else if (command.includes("alarme")) {
+        router.push("/alarmes");
+      } else if (command.includes("rapport")) {
+        router.push("/rapports");
+      } else if (command.includes("home")) {
+        router.push("/");
+      }
+    },
+    [router]
+  );
 
-export default useSpeechRecognition;
+  return {
+    text,
+    isListening,
+    enableVocalMode,
+    disableVocalMode,
+  };
+};

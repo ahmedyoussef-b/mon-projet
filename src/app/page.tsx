@@ -1,32 +1,71 @@
-// Path: src/app/page.tsx
-"use client"
-import { useState } from "react";
-import useSpeechRecognition from "@/hooks/useSpeechRecognition";
+// /src/home/page.tsx
 
-export default function Home() {
+"use client";
+import React, { useState } from "react";
+import Link from "next/link";
+import { useSpeechRecognition } from "@/hooks/useSpeechRecognition";
+import Sidebar from "@/components/Sidebar";
+
+export default function HomePage() {
   const { text, isListening, enableVocalMode, disableVocalMode } = useSpeechRecognition();
-  const [isVocalModeEnabled, setIsVocalModeEnabled] = useState(false);
+  const [isVocalModeActive, setIsVocalModeActive] = useState<boolean>(false);
+
+  const handleVocalModeToggle = () => {
+    if (isVocalModeActive) {
+      disableVocalMode();
+    } else {
+      enableVocalMode();
+    }
+    setIsVocalModeActive(!isVocalModeActive);
+  };
 
   return (
-    <div className="p-6">
-      <h1 className="text-xl font-bold">Bienvenue</h1>
-      <p>Microphone : {isListening ? "Écoute en cours..." : "Non actif"}</p>
-      <p className="mt-2">{text}</p>
+    <div className="flex flex-col lg:flex-row min-h-screen justify-center items-center ">
+      {/* Sidebar */}
+      <Sidebar />
 
-      <button
-        onClick={() => {
-          if (!isVocalModeEnabled) {
-            enableVocalMode();
-            setIsVocalModeEnabled(true);
-          } else {
-            disableVocalMode();
-            setIsVocalModeEnabled(false);
-          }
-        }}
-        className={`mt-4 px-4 py-2 ${isVocalModeEnabled ? "bg-red-500" : "bg-blue-500"} text-white rounded`}
-      >
-        {isVocalModeEnabled ? "Désactiver Mode Vocal" : "Activer Mode Vocal"}
-      </button>
+      {/* Main Content */}
+      <div className="flex-1 p-6 lg:p-10 space-y-6">
+        <h1 className="text-3xl font-bold mb-6 text-center lg:text-left">
+          Copilot Centrale
+        </h1>
+
+        {/* Bouton pour activer/désactiver le mode vocal */}
+        <button
+          className="btn button-add w-full lg:w-auto mx-auto lg:mx-0"
+          onClick={handleVocalModeToggle}
+        >
+          {isVocalModeActive ? "Désactiver Mode Vocal" : "Passer en Mode Vocal"}
+        </button>
+
+        {/* Indicateur de statut du microphone */}
+        <div
+          className={`text-center font-semibold ${isListening ? "text-green-400" : "text-red-400"
+            }`}
+        >
+          {isListening ? "Microphone Activé 🎙️" : "Microphone Désactivé ❌"}
+        </div>
+
+        {/* Affichage de la transcription */}
+        {text && (
+          <div className="bg-gray-800 p-4 rounded-lg text-lg text-white">
+            🗣️ {text}
+          </div>
+        )}
+
+        {/* Boutons de navigation */}
+        <div className="flex justify-center gap-4 mt-6 flex-wrap">
+          <Link href="/manoeuvres">
+            <button className="btn w-full sm:w-auto">Manœuvres</button>
+          </Link>
+          <Link href="/alarmes">
+            <button className="btn w-full sm:w-auto">Alarmes</button>
+          </Link>
+          <Link href="/rapports">
+            <button className="btn w-full sm:w-auto">Rapports</button>
+          </Link>
+        </div>
+      </div>
     </div>
   );
 }

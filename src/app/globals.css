@@ -15,7 +15,171 @@
 }
 
 body {
-  color: var(--foreground);
-  background: var(--background);
-  font-family: Arial, Helvetica, sans-serif;
+  background: url("https://www.tunisie-direct.com/wp-content/uploads/2021/05/Centrale-electrique.jpg") no-repeat center center fixed;
+  background-size: cover;
+  font-family: Arial, sans-serif;
+  color: #fff;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100vh;
+  margin: 0;
+}
+
+.container {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  margin-top: 80px;
+}
+
+input[type="text"] {
+  background: none;
+  background-color: transparent;
+  border: none;
+  padding: 10px 15px;
+  border-radius: 30px;
+  color: #fff;
+  outline: none;
+  width: 250px;
+  height: 30px;
+  margin-right: 10px;
+  box-shadow: -3px -3px 3px #363636;
+  font-size: 18px;
+}
+
+button {
+  background: none;
+  background-color: #444;
+  border: none;
+  color: #fff;
+  padding: 10px 20px;
+  border-radius: 20px;
+  cursor: pointer;
+  font-size: 14px;
+  margin: 5px;
+  box-shadow: 3px 3px 3px #222327 ,-3px -3px 3px #363636;
+  justify-content: center;
+  align-items: center;
+}
+
+.btn:hover {
+  background-color: #555;
+  box-shadow: inset 3px 3px 3px #222327 ,-3px -3px 3px #363636;
+}
+
+.filters, .toggle-all {
+  display: flex;
+  gap: 10px;
+  margin-top: 10px;
+}
+
+.filters button {
+  flex-grow: 1;
+}
+
+.toggle-all {
+  background-color: #444;
+  padding: 10px 20px;
+  border-radius: 20px;
+  text-align: center;
+  margin-top: 15px;
+}
+
+.d-f {
+  display: flex;
+  width: 100%;
+  justify-content: space-evenly;
+  margin-top: 15px;
+  font-style: 18px;
+  color: #fff;
+  align-items: baseline;
+}
+
+.d-f > div {
+  cursor: pointer;
+}
+
+.todo-count {
+  color: #fff;
+  margin-top: 15px;
+}
+
+.delete-btn {
+  width: 40px;
+  height: 40px;
+}
+
+.button-container {
+  display: flex;
+  justify-content: space-evenly;
+  gap: 10px;
+  margin-top: 40px;
+}
+
+.button-add {
+  padding: 10px 20px;
+  background-color: #007bff;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.button-add:hover {
+  background-color: #0056b3;
+}
+
+.microphone-status {
+  font-size: 16px;
+  margin-top: 15px;
+  font-weight: bold;
+}
+
+.transcript-box {
+  margin-top: 20px;
+}
+
+.transcript-box p {
+  font-size: 18px;
+}
+/* /src/styles/global.css */
+.sidebar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  height: 100vh;
+  width: 200px;
+  background-color: #333;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+}
+
+.sidebar .btn {
+  margin-bottom: 10px;
+  padding: 10px;
+  background-color: #444;
+  color: #fff;
+  border-radius: 5px;
+  cursor: pointer;
+  text-align: center;
+  width: 100%;
+}
+
+.sidebar .btn:hover {
+  background-color: #555;
+}
+
+.page-container {
+  display: flex;
+  margin-left: 220px; /* Donne de l'espace à la sidebar */
+}
+
+.content {
+  padding: 20px;
+  width: 100%;
 }
