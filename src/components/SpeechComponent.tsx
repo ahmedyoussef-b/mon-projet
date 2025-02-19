@@ -1,3 +1,4 @@
+// src/components/SpeechComponent.tsx
 import { useSpeechRecognition } from '../hooks/useSpeechRecognition';
 
 const SpeechComponent = () => {

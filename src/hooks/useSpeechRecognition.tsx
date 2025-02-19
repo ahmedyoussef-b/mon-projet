@@ -1,24 +1,23 @@
 
-///src/hkoos / useSpeechRecognition.ts;
-"use client";
-
+///src/hkoos / useSpeechRecognition.tsx;
 import { useState, useEffect, useRef, useCallback } from "react";
 import { useRouter } from "next/navigation";
+import prisma from "@/lib/prisma"; // Assurez-vous que Prisma est bien configuré
+interface SpeechRecognitionEvent extends Event {
+  results: SpeechRecognitionResultList;
+}
 
 interface SpeechRecognition extends EventTarget {
   continuous: boolean;
   interimResults: boolean;
   lang: string;
-  start(): void;
-  stop(): void;
-  onresult: ((event: SpeechRecognitionEvent) => void) | null;
-  onstart: (() => void) | null;
-  onend: (() => void) | null;
+  start: () => void;
+  stop: () => void;
+  onresult: (event: SpeechRecognitionEvent) => void;
+  onstart: () => void;
+  onend: () => void;
 }
 
-interface SpeechRecognitionEvent extends Event {
-  results: SpeechRecognitionResultList;
-}
 
 export const useSpeechRecognition = () => {
   const router = useRouter();
@@ -46,12 +45,12 @@ export const useSpeechRecognition = () => {
     recognition.interimResults = false;
     recognition.lang = "fr-FR";
 
-    recognition.onresult = (event: SpeechRecognitionEvent) => {
+    recognition.onresult = async (event: SpeechRecognitionEvent) => {
       const transcript = event.results[event.results.length - 1][0].transcript
         .trim()
         .toLowerCase();
       setText(transcript);
-      HandleSpeechCommands(transcript);
+      await HandleSpeechCommands(transcript);
     };
 
     recognition.onstart = () => setIsListening(true);
@@ -75,7 +74,7 @@ export const useSpeechRecognition = () => {
   }, []);
 
   const HandleSpeechCommands = useCallback(
-    (command: string) => {
+    async (command: string) => {
       if (command.includes("manœuvre")) {
         router.push("/manoeuvres");
       } else if (command.includes("alarme")) {
@@ -84,6 +83,20 @@ export const useSpeechRecognition = () => {
         router.push("/rapports");
       } else if (command.includes("home")) {
         router.push("/");
+      } else if (command.includes("répond")) {
+        // Insérer une réponse dans la base de données
+        await prisma.response.create({
+          data: {
+            text: "Voici la réponse à votre demande.",
+          },
+        });
+
+        // Affichage de la réponse sur l'écran et activation de la voix
+        setText("Voici la réponse à votre demande.");
+
+        // Optionnel : vous pouvez ajouter ici une réponse vocale également
+        const speech = new SpeechSynthesisUtterance("Voici la réponse à votre demande.");
+        window.speechSynthesis.speak(speech);
       }
     },
     [router]

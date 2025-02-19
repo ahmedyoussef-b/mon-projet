@@ -1,4 +1,5 @@
-{/*declare global {
+// /src/global.d.ts
+declare global {
   interface Window {
     webkitSpeechRecognition: new () => SpeechRecognition;
   }
@@ -36,4 +37,3 @@
     onend: () => void;
   }
 }
-*/}
