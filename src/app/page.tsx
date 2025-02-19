@@ -1,22 +1,11 @@
 // /src/app/page.tsx
 "use client";
-import React, { useState } from "react";
 import Link from "next/link";
 import { useSpeechRecognition } from "@/hooks/useSpeechRecognition";
 import Sidebar from "@/components/Sidebar";
 
 export default function HomePage() {
-  const { text, isListening, enableVocalMode, disableVocalMode } = useSpeechRecognition();
-  const [isVocalModeActive, setIsVocalModeActive] = useState<boolean>(false);
-
-  const handleVocalModeToggle = () => {
-    if (isVocalModeActive) {
-      disableVocalMode();
-    } else {
-      enableVocalMode();
-    }
-    setIsVocalModeActive(!isVocalModeActive);
-  };
+  const { text, isListening, startListening, stopListening } = useSpeechRecognition();
 
   return (
     <div className="flex flex-col md:flex-row min-h-screen">
@@ -29,18 +18,17 @@ export default function HomePage() {
           Copilot Centrale
         </h1>
 
-        {/* Bouton pour activer/désactiver le mode vocal */}
+        {/* Bouton pour activer/désactiver l'écoute */}
         <button
           className="btn button-add w-full md:w-auto mx-auto md:mx-0"
-          onClick={handleVocalModeToggle}
+          onClick={isListening ? stopListening : startListening}
         >
-          {isVocalModeActive ? "Désactiver Mode Vocal" : "Passer en Mode Vocal"}
+          {isListening ? "Désactiver l'écoute" : "Activer l'écoute"}
         </button>
 
         {/* Indicateur de statut du microphone */}
         <div
-          className={`text-center font-semibold ${isListening ? "text-green-400" : "text-red-400"
-            }`}
+          className={`text-center font-semibold ${isListening ? "text-green-400" : "text-red-400"}`}
         >
           {isListening ? "Microphone Activé 🎙️" : "Microphone Désactivé ❌"}
         </div>
