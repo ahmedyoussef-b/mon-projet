@@ -1,5 +1,4 @@
 // /src/app/page.tsx
-
 "use client";
 import React, { useState } from "react";
 import Link from "next/link";
@@ -20,19 +19,19 @@ export default function HomePage() {
   };
 
   return (
-    <div className="flex flex-col lg:flex-row min-h-screen justify-center items-center ">
+    <div className="flex flex-col md:flex-row min-h-screen">
       {/* Sidebar */}
       <Sidebar />
 
-      {/* Main Content */}
-      <div className="flex-1 p-6 lg:p-10 space-y-6">
-        <h1 className="text-3xl font-bold mb-6 text-center lg:text-left">
+      {/* Contenu principal */}
+      <div className="flex-1 p-6 md:p-10 space-y-6 mt-16 md:mt-0">
+        <h1 className="text-3xl font-bold text-center md:text-left">
           Copilot Centrale
         </h1>
 
         {/* Bouton pour activer/désactiver le mode vocal */}
         <button
-          className="btn button-add w-full lg:w-auto mx-auto lg:mx-0"
+          className="btn button-add w-full md:w-auto mx-auto md:mx-0"
           onClick={handleVocalModeToggle}
         >
           {isVocalModeActive ? "Désactiver Mode Vocal" : "Passer en Mode Vocal"}

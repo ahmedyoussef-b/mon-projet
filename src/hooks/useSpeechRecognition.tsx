@@ -49,6 +49,7 @@ export const useSpeechRecognition = () => {
         .trim()
         .toLowerCase();
       setText(transcript); // Affiche le texte prononcé
+      console.log("Texte capté :", transcript);
       await HandleSpeechCommands(transcript); // Traite les commandes vocales
     };
 
