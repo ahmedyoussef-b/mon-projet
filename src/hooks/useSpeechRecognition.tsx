@@ -40,9 +40,9 @@ export const useSpeechRecognition = () => {
     const recognition = recognitionRef.current;
     if (!recognition) return;
 
-    recognition.continuous = true;
-    recognition.interimResults = false;
-    recognition.lang = "fr-FR";
+    recognition.continuous = true; // Mode écoute continue
+    recognition.interimResults = false; // Pas de résultats intermédiaires
+    recognition.lang = "fr-FR"; // Langue de reconnaissance (Français)
 
     recognition.onresult = async (event: SpeechRecognitionEvent) => {
       const transcript = event.results[event.results.length - 1][0].transcript
@@ -54,12 +54,19 @@ export const useSpeechRecognition = () => {
     };
 
     recognition.onstart = () => setIsListening(true); // L'écoute démarre
-    recognition.onend = () => setIsListening(false); // L'écoute s'arrête
+    recognition.onend = () => {
+      if (isVocalMode) {
+        // Si le mode vocal est activé, on redémarre la reconnaissance
+        recognition.start();
+      } else {
+        setIsListening(false); // L'écoute s'arrête uniquement si le mode vocal est désactivé
+      }
+    };
 
     return () => {
       recognition.stop();
     };
-  }, []);
+  }, [isVocalMode]);
 
   const enableVocalMode = useCallback(() => {
     setIsVocalMode(true);
@@ -105,7 +112,7 @@ export const useSpeechRecognition = () => {
   return {
     text,
     isListening,
-    isVocalMode, // Retourne isVocalMode
+    isVocalMode,
     enableVocalMode,
     disableVocalMode,
   };
