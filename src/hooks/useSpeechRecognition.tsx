@@ -18,12 +18,11 @@ interface SpeechRecognition extends EventTarget {
   onend: () => void;
 }
 
-
 export const useSpeechRecognition = () => {
   const router = useRouter();
-  const [text, setText] = useState<string>("");
-  const [isListening, setIsListening] = useState<boolean>(false);
-  const [isVocalMode, setIsVocalMode] = useState<boolean>(false);
+  const [text, setText] = useState<string>(""); // Texte reconnu
+  const [isListening, setIsListening] = useState<boolean>(false); // État de l'écoute
+  const [isVocalMode, setIsVocalMode] = useState<boolean>(false); // État du mode vocal
   const recognitionRef = useRef<SpeechRecognition | null>(null);
 
   useEffect(() => {
@@ -41,20 +40,20 @@ export const useSpeechRecognition = () => {
     const recognition = recognitionRef.current;
     if (!recognition) return;
 
-    recognition.continuous = true;
-    recognition.interimResults = false;
-    recognition.lang = "fr-FR";
+    recognition.continuous = true; // Mode écoute continue
+    recognition.interimResults = false; // Pas de résultats intermédiaires
+    recognition.lang = "fr-FR"; // Langue de reconnaissance (Français)
 
     recognition.onresult = async (event: SpeechRecognitionEvent) => {
       const transcript = event.results[event.results.length - 1][0].transcript
         .trim()
         .toLowerCase();
-      setText(transcript);
-      await HandleSpeechCommands(transcript);
+      setText(transcript); // Affiche le texte prononcé
+      await HandleSpeechCommands(transcript); // Traite les commandes vocales
     };
 
-    recognition.onstart = () => setIsListening(true);
-    recognition.onend = () => setIsListening(false);
+    recognition.onstart = () => setIsListening(true); // L'écoute démarre
+    recognition.onend = () => setIsListening(false); // L'écoute s'arrête
 
     return () => {
       recognition.stop();
@@ -64,37 +63,37 @@ export const useSpeechRecognition = () => {
   const enableVocalMode = useCallback(() => {
     setIsVocalMode(true);
     setText("Mode vocal activé. Dites 'écoute' pour commencer.");
-    recognitionRef.current?.start();
+    recognitionRef.current?.start(); // Démarre la reconnaissance vocale
   }, []);
 
   const disableVocalMode = useCallback(() => {
     setIsVocalMode(false);
-    recognitionRef.current?.stop();
+    recognitionRef.current?.stop(); // Arrête la reconnaissance vocale
     setText("Mode vocal désactivé.");
   }, []);
 
   const HandleSpeechCommands = useCallback(
     async (command: string) => {
       if (command.includes("manœuvre")) {
-        router.push("/manoeuvres");
+        router.push("/manoeuvres"); // Redirige vers la page des manœuvres
       } else if (command.includes("alarme")) {
-        router.push("/alarmes");
+        router.push("/alarmes"); // Redirige vers la page des alarmes
       } else if (command.includes("rapport")) {
-        router.push("/rapports");
+        router.push("/rapports"); // Redirige vers la page des rapports
       } else if (command.includes("home")) {
-        router.push("/");
+        router.push("/"); // Redirige vers la page d'accueil
       } else if (command.includes("répond")) {
-        // Insérer une réponse dans la base de données
+        // Insérer une réponse dans la base de données avec Prisma
         await prisma.response.create({
           data: {
             text: "Voici la réponse à votre demande.",
           },
         });
 
-        // Affichage de la réponse sur l'écran et activation de la voix
+        // Affichage de la réponse sur l'écran
         setText("Voici la réponse à votre demande.");
 
-        // Optionnel : vous pouvez ajouter ici une réponse vocale également
+        // Réponse vocale (facultatif)
         const speech = new SpeechSynthesisUtterance("Voici la réponse à votre demande.");
         window.speechSynthesis.speak(speech);
       }
