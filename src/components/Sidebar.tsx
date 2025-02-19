@@ -27,7 +27,7 @@ const Sidebar = () => {
                     <Link href="/" className="block p-2 bg-orange-400 hover:bg-blue-600 rounded-md text-center">
                         Home
                     </Link>
-                    <Link href="/manoeuvres" className="block p-2 bg-blue-500 hover:bg-blue-600 rounded-md text-center">
+                    <Link href="/manoeuvres" className="block p-2 bg-red-800 hover:bg-blue-600 rounded-md text-center">
                         Manœuvres
                     </Link>
                     <Link href="/alarmes" className="block p-2 bg-blue-500 hover:bg-blue-600 rounded-md text-center">

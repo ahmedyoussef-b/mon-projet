@@ -1,8 +1,7 @@
-
-///src/hkoos / useSpeechRecognition.tsx;
+// /src/hooks/useSpeechRecognition.tsx
 import { useState, useEffect, useRef, useCallback } from "react";
 import { useRouter } from "next/navigation";
-import prisma from "@/lib/prisma"; // Assurez-vous que Prisma est bien configuré
+
 interface SpeechRecognitionEvent extends Event {
   results: SpeechRecognitionResultList;
 }
@@ -54,12 +53,15 @@ export const useSpeechRecognition = () => {
     };
 
     recognition.onstart = () => setIsListening(true); // L'écoute démarre
-    recognition.onend = () => setIsListening(false); // L'écoute s'arrête
+    recognition.onend = () => {
+      setIsListening(false);
+      if (isVocalMode) recognition.start(); // 🔹 Redémarre automatiquement sauf si désactivé
+    };
 
     return () => {
       recognition.stop();
     };
-  }, []);
+  }, [isVocalMode]);
 
   const enableVocalMode = useCallback(() => {
     setIsVocalMode(true);
@@ -84,22 +86,22 @@ export const useSpeechRecognition = () => {
       } else if (command.includes("home")) {
         router.push("/"); // Redirige vers la page d'accueil
       } else if (command.includes("répond")) {
-        // Insérer une réponse dans la base de données avec Prisma
-        await prisma.response.create({
-          data: {
-            text: "Voici la réponse à votre demande.",
-          },
+        await fetch("/api/saveResponse", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ text: "Voici la réponse à votre demande." }),
         });
 
-        // Affichage de la réponse sur l'écran
         setText("Voici la réponse à votre demande.");
 
-        // Réponse vocale (facultatif)
         const speech = new SpeechSynthesisUtterance("Voici la réponse à votre demande.");
         window.speechSynthesis.speak(speech);
+
+        // 🔹 Redémarrage automatique après "répond" sauf si mode désactivé
+        if (isVocalMode) recognitionRef.current?.start();
       }
     },
-    [router]
+    [router, isVocalMode]
   );
 
   return {
