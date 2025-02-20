@@ -1,4 +1,3 @@
-// /src/components/SpeechToDatabase.tsx
 "use client";
 import { useState } from "react";
 import { useSpeechRecognition } from "@/hooks/useSpeechRecognition";
@@ -33,6 +32,8 @@ export default function SpeechToDatabase() {
                 const data = await response.json();
 
                 if (data.response) {
+                    // Mettre à jour la réponse avec celle obtenue de l'API
+                    setResponse(data.response);
                     // Si une réponse est trouvée, rediriger vers la page de rapport
                     router.push(`/rapport?question=${text}&response=${data.response}`);
                 } else {
@@ -66,7 +67,7 @@ export default function SpeechToDatabase() {
         <div className="flex flex-col items-center p-4 bg-gray-100 min-h-screen">
             <h1 className="text-2xl font-bold mb-4">🎙️ Enregistrement vocal</h1>
 
-         
+            {/* Première colonne - Reconnaissance vocale */}
             <div className="w-full max-w-lg p-4 bg-white rounded-lg shadow-md">
                 <p className="text-gray-700">
                     <strong>Texte reconnu :</strong>
@@ -101,7 +102,7 @@ export default function SpeechToDatabase() {
                 </button>
             </div>
 
-        
+            {/* Deuxième colonne - Gestion de la question et réponse */}
             <div className="mt-6 w-full max-w-lg p-4 bg-white rounded-lg shadow-md">
                 {response ? (
                     <>
@@ -148,6 +149,7 @@ export default function SpeechToDatabase() {
         </div>
     );
 }
+
 {/*}
 import { useState } from "react";
 import { useRouter } from "next/navigation"; // Assurez-vous d'importer useRouter de Next.js
