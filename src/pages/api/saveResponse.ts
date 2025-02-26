@@ -1,5 +1,5 @@
 // /src/app/api/reponse/route.ts
-import { NextResponse } from "next/server";
+{/*import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 
 export async function POST(req: Request) {
@@ -28,3 +28,4 @@ export async function POST(req: Request) {
     return NextResponse.json({ message: "Erreur serveur" }, { status: 500 });
   }
 }
+*/}

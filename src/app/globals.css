@@ -15,16 +15,16 @@
 }
 
 body {
-  background: url("https://www.tunisie-direct.com/wp-content/uploads/2021/05/Centrale-electrique.jpg") no-repeat center center fixed;
+  background-color: teal;
   background-size: cover;
   font-family: Arial, sans-serif;
-  color: #1d1212;
+  color: gray;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
   height: 100vh;
-  margin: 0;
+  margin: 50px;
 }
 
 .container {
@@ -182,4 +182,13 @@ button {
 .content {
   padding: 20px;
   width: 100%;
+}
+@keyframes blink {
+    0% { opacity: 1; }
+    50% { opacity: 0.5; }
+    100% { opacity: 1; }
+}
+
+.animate-pulse {
+    animation: blink 1s infinite;
 }

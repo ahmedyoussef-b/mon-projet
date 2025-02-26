@@ -1,9 +1,6 @@
 // This is your Prisma schema file,
 // learn more about it in the docs: https://pris.ly/d/prisma-schema
 
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
-
 generator client {
   provider = "prisma-client-js"
 }
@@ -12,21 +9,25 @@ datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
 }
-model User {
-  id    Int    @id @default(autoincrement())
-  email String @unique
-  name  String?
-}
+
 model Question {
-  id       String   @id @default(cuid())
-  content  String   @unique // Déclare content comme unique
-  reponse  Reponse?
+  id        String   @id @default(uuid()) // Identifiant unique
+  content   String   @unique @db.VarChar(500) // Contenu de la question (unique, max 500 caractères)
+  reponse   Reponse[] // Relation avec les réponses
+  createdAt DateTime @default(now()) // Date de création
+  updatedAt DateTime @updatedAt // Date de mise à jour
+
+  @@index([content]) // Index sur le champ content pour optimiser les recherches
 }
 
 model Reponse {
-  id        String  @id @default(cuid())
-  content   String
-  question  Question  @relation(fields: [questionId], references: [id])
-  questionId String   @unique
-}
+  id         String   @id @default(uuid()) // Identifiant unique
+  content    String   // Contenu de la réponse (texte illimité)
+  imageUrl   String?  // URL de l'image (optionnelle)
+  question   Question @relation(fields: [questionId], references: [id]) // Relation avec la question
+  questionId String   // Clé étrangère vers la question
+  createdAt  DateTime @default(now()) // Date de création
+  updatedAt  DateTime @updatedAt // Date de mise à jour
 
+  @@index([questionId]) // Index sur le champ questionId pour optimiser les jointures
+}
