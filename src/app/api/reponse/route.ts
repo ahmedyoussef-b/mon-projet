@@ -9,39 +9,61 @@ const reponseSchema = z.object({
   reponse: z.string().min(5, "La réponse doit comporter au moins 5 caractères"),
 });
 
+// Fonction pour valider les données entrantes
+function validateReponseData(data: unknown): { success: boolean; data?: z.infer<typeof reponseSchema>; error?: string } {
+  const validation = reponseSchema.safeParse(data);
+  if (!validation.success) {
+    return { success: false, error: validation.error.errors[0].message };
+  }
+  return { success: true, data: validation.data };
+}
+
+// Fonction pour créer une réponse
+async function createReponse(questionId: string, reponse: string) {
+  // Vérification de l'existence de la question
+  const existingQuestion = await prisma.question.findUnique({
+    where: { id: questionId },
+  });
+
+  if (!existingQuestion) {
+    throw new Error(`Aucune question trouvée avec l'ID: ${questionId}`);
+  }
+
+  // Création de la réponse
+  return await prisma.reponse.create({
+    data: {
+      content: reponse.trim(),
+      question: { connect: { id: questionId } },
+    },
+  });
+}
+
+// Fonction principale pour gérer les requêtes POST
 export async function POST(req: Request) {
   try {
     const body = await req.json();
-    const validation = reponseSchema.safeParse(body);
 
+    // Validation des données entrantes
+    const validation = validateReponseData(body);
     if (!validation.success) {
       return NextResponse.json(
-        { error: validation.error.errors[0].message },
+        { error: validation.error },
+        { status: 400 }
+      );
+    }
+
+    // Vérification que validation.data est défini
+    if (!validation.data) {
+      return NextResponse.json(
+        { error: "Données de validation manquantes." },
         { status: 400 }
       );
     }
 
     const { questionId, reponse } = validation.data;
 
-    // Vérification de l'existence de la question
-    const existingQuestion = await prisma.question.findUnique({
-      where: { id: questionId },
-    });
-
-    if (!existingQuestion) {
-      return NextResponse.json(
-        { error: `Aucune question trouvée avec l'ID: ${questionId}` },
-        { status: 404 }
-      );
-    }
-
     // Création de la réponse
-    const createdReponse = await prisma.reponse.create({
-      data: {
-        content: reponse.trim(),
-        question: { connect: { id: questionId } },
-      },
-    });
+    const createdReponse = await createReponse(questionId, reponse);
 
     return NextResponse.json(
       {
@@ -63,61 +85,4 @@ export async function POST(req: Request) {
       { status: 500 }
     );
   }
-}
-
-
-
-
-
-
-
-
-
-
-{
-  /*}
-import { NextResponse } from "next/server";
-import { prisma } from "@/lib/prisma";
-
-export async function POST(req: Request) {
-  try {
-    const { questionId, reponse } = await req.json();
-
-    if (!questionId || !reponse) {
-      return NextResponse.json(
-        { error: "Question ID et réponse sont requis" },
-        { status: 400 }
-      );
-    }
-
-    // Vérifier si la question existe
-    const existingQuestion = await prisma.question.findUnique({
-      where: { id: questionId },
-    });
-
-    if (!existingQuestion) {
-      return NextResponse.json(
-        { error: "Question introuvable" },
-        { status: 404 }
-      );
-    }
-
-    // Créer la réponse et l'associer à la question
-    const createdReponse = await prisma.reponse.create({
-      data: {
-        content: reponse,
-        questionId: questionId,
-      },
-    });
-
-    return NextResponse.json({
-      message: "Réponse ajoutée avec succès",
-      reponse: createdReponse.content,
-    });
-  } catch (error) {
-    console.error("Erreur API réponse :", error);
-    return NextResponse.json({ error: "Erreur serveur" }, { status: 500 });
-  }
-}
-*/
 }
