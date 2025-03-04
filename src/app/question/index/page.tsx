@@ -1,5 +1,5 @@
 // Path: /src/app/question/index/page.tsx
-
+{/*}
 import { useState } from 'react';
 import { prisma } from '../../../lib/prisma'; // Assure-toi d'avoir configuré Prisma
 import { useRouter } from 'next/router';
@@ -96,3 +96,4 @@ const QuestionForm = () => {
 };
 
 export default QuestionForm;
+*/}

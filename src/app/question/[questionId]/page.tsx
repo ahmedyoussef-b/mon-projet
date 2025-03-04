@@ -1,5 +1,5 @@
 // Path: /src/app/question/[questionId]/page.tsx
-
+{/*}
 import { GetServerSideProps } from 'next';
 import { prisma } from '../../../lib/prisma'; // Assure-toi d'avoir configuré Prisma
 import { useState } from 'react';
@@ -106,3 +106,4 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
 };
 
 export default QuestionPage;
+*/}
