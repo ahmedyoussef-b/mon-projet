@@ -1,44 +1,61 @@
 // /src/app/api/question/route.ts
 
 import { NextResponse } from "next/server";
-import {prisma} from "@/lib/prisma"; // Importer l'instance unique de Prisma
+import { PrismaClient } from "@prisma/client";
+
+const prisma = new PrismaClient();
 
 export async function POST(req: Request) {
   try {
-    const { questionText } = await req.json();
-
-    // Vérifier si la question est valide
-    if (!questionText?.trim()) {
-      return NextResponse.json({ message: "Le texte de la question est vide." }, { status: 400 });
+    const { motCleText } = await req.json();
+console.log("motclé",motCleText)
+    if (!motCleText || !motCleText.trim()) {
+      return NextResponse.json({ error: "La question est vide ou mal formatée" }, { status: 400 });
     }
 
-    // Recherche de la question dans la base de données
-    const question = await prisma.question.findFirst({
-      where: { content: questionText },
-      include: { reponse: true },
-    });
+    const match = motCleText.match(/\d+/);
+    const requestedLevel = match ? parseInt(match[0]) : null;
 
-    console.log(question)
-    // Gérer le cas où la question n'existe pas
-    if (!question) {
-      return NextResponse.json({ message: "La question n'existe pas." }, { status: 404 });
+    console.log("match",match)
+    console.log("requestedlevel",requestedLevel)
+
+    if (motCleText.toLowerCase().includes("niveau condenseur") && requestedLevel === null) {
+      const results = await prisma.condenseurNiveau.findMany({
+        orderBy: { reglage: "desc" },
+      });
+      return NextResponse.json({ type: "list", results });
     }
 
-    // Gérer le cas où la question existe mais n'a pas de réponse
-    if (!question.reponse || question.reponse.length === 0) {
-      return NextResponse.json({ message: "Pas de réponse." }, { status: 404 });
+    if (requestedLevel !== null) {
+      const exactMatch = await prisma.condenseurNiveau.findFirst({
+        where: { reglage: requestedLevel },
+      });
+
+      if (exactMatch) {
+        return NextResponse.json({ type: "single", result: exactMatch, message: "Correspondance exacte trouvée." });
+      }
+
+      // Trouver les niveaux les plus proches
+      const niveauSuperieur = await prisma.condenseurNiveau.findFirst({
+        where: { reglage: { gte: requestedLevel } },
+        orderBy: { reglage: "asc" },
+      });
+
+      const niveauInferieur = await prisma.condenseurNiveau.findFirst({
+        where: { reglage: { lte: requestedLevel } },
+        orderBy: { reglage: "desc" },
+      });
+
+      console.log("niveauinf",niveauInferieur)
+      console.log("niveausup",niveauSuperieur)
+
+      const surroundingLevels = [niveauSuperieur, niveauInferieur].filter(Boolean);
+
+      return NextResponse.json({ type: "range", results: surroundingLevels ,niveauInferieur:niveauInferieur});
     }
-
-    // Retourner les réponses associées
-    return NextResponse.json({ reponse: question.reponse.map((r) => r.content) });
-
-  } catch (error: unknown) {  // 🔹 Remplacer "any" par "unknown"
-    console.error("Erreur lors de la vérification de la question :", error);
-
-    if (error instanceof Error) {
-      return NextResponse.json({ message: `Erreur Prisma : ${error.message}` }, { status: 500 });
-    }
-
-    return NextResponse.json({ message: "Une erreur inconnue s'est produite." }, { status: 500 });
+    return NextResponse.json({ error: "Aucune correspondance trouvée" }, { status: 404 });
+  } catch (error) {
+    console.error(`Erreur API lors de la requête ${req.url}:`, error);
+    return NextResponse.json({ error: "Erreur interne" }, { status: 500 });
   }
 }
