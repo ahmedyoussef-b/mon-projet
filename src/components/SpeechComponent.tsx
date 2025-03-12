@@ -1,6 +1,6 @@
 // src/components/SpeechComponent.tsx
 import React from "react";
-import { useSpeechRecognition } from "@/hooks/useSpeechRecognition"; // Chemin d'accès au fichier
+import { useSpeechRecognition } from "@/app/hooks/useSpeechRecognition"; // Chemin d'accès au fichier
 
 const SpeechComponent = () => {
     const { text, isListening, startListening, stopListening } = useSpeechRecognition();

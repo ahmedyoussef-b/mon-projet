@@ -22,6 +22,7 @@
     "next": "^15.1.7",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
+    "react-toastify": "^11.0.5",
     "sharp": "^0.33.5",
     "spellchecker": "^3.7.1",
     "spellchecker-wasm": "^0.3.3",

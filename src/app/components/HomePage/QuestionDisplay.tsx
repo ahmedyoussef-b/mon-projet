@@ -8,7 +8,7 @@ interface QuestionDisplayProps {
 export default function QuestionDisplay({ text }: QuestionDisplayProps) {
     return (
         <motion.div
-            className="bg-blue-500 p-4 rounded-lg text-lg text-white shadow-md mb-4"
+            className="btn bg-blue-500 p-4 rounded-lg text-lg text-white shadow-md mb-4"
             initial={{ opacity: 0, x: -100 }}
             animate={{ opacity: 1, x: 0 }}
             exit={{ opacity: 0, x: -100 }}

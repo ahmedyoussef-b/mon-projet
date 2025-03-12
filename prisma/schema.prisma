@@ -1,5 +1,8 @@
 
 //prisma/schema.prisma
+
+// prisma/schema.prisma
+
 generator client {
   provider = "prisma-client-js"
 }
@@ -10,9 +13,176 @@ datasource db {
   directUrl = env("DATABASE_URL") // Optionnel pour Neon
 }
 
-model CondenseurNiveau {
-  id       Int    @id @default(autoincrement())
-  instrument String
-  reglage   Int
-  action    String
+// Définir les enums pour chaque type de paramètre
+enum Temperature {
+  HAUTE
+  BASSE
+  CRITIQUE
+}
+
+enum Pression {
+  ELEVEE
+  FAIBLE
+  STABLE
+}
+
+enum NiveauxPrecie {
+  MAX
+  MIN
+  MOYEN
+}
+
+enum Position {
+  OUVERT
+  FERME
+  INTERMEDIAIRE
+}
+
+// Enum pour les types de conditions
+enum ConditionType {
+  DEMARRAGE
+  DECLENCHEMENT
+  OUVERTURE
+  FERMETURE
+}
+
+// Modèles principaux
+model Partie {
+  id        Int       @id @default(autoincrement())
+  nom       String    // Exemple : "A0", "B0", etc.
+  circuits  Circuit[] // Relation avec les circuits
+}
+
+model Circuit {
+  id        Int      @id @default(autoincrement())
+  nom       String   // Nom du circuit
+  partieId  Int      // Clé étrangère vers la partie
+  partie    Partie   @relation(fields: [partieId], references: [id])
+  organes   Organe[] // Relation avec les organes
+  alarmes   Alarme[] // Relation avec les alarmes
+}
+
+model Organe {
+  id                      Int                  @id @default(autoincrement())
+  nomSpecifique           String               // Nom spécifique de l'organe
+  nomCircuit              String               // Nom du circuit associé
+  reference               String               // Référence de l'organe
+  conditionsDemarrage     ConditionDemarrage[] // Relation avec les conditions de démarrage
+  conditionsDeclenchement ConditionDeclenchement[] // Relation avec les conditions de déclenchement
+  conditionsOuverture     ConditionOuverture[] // Relation avec les conditions d'ouverture
+  conditionsFermeture     ConditionFermeture[] // Relation avec les conditions de fermeture
+  conditionsManoeuvre     ConditionManoeuvre[] // Relation avec les conditions de manœuvre
+  niveaux                 Niveau[]             // Relation avec les niveaux
+  temps                   String?              // Temps
+  temperatures            String?              // Températures
+  debits                  String?              // Débits
+  pressions               String?              // Pressions
+  deltaT                  String?              // Différence de températures
+  deltaP                  String?              // Différence de pressions
+  deltaTemps              String?              // Différence de temps
+  circuitId               Int                  // Clé étrangère vers le circuit
+  circuit                 Circuit              @relation(fields: [circuitId], references: [id])
+
+  RegroupementNiveaux     RegroupementNiveaux[] // Relation avec les regroupements des niveaux
+}
+
+model ConditionDemarrage {
+  id          Int      @id @default(autoincrement())
+  description String   // Description de la condition de démarrage
+  organeId    Int      // Clé étrangère vers l'organe
+  organe      Organe   @relation(fields: [organeId], references: [id])
+}
+
+model ConditionDeclenchement {
+  id          Int      @id @default(autoincrement())
+  description String   // Description de la condition de déclenchement
+  organeId    Int      // Clé étrangère vers l'organe
+  organe      Organe   @relation(fields: [organeId], references: [id])
+}
+
+model ConditionOuverture {
+  id          Int      @id @default(autoincrement())
+  description String   // Description de la condition d'ouverture
+  organeId    Int      // Clé étrangère vers l'organe
+  organe      Organe   @relation(fields: [organeId], references: [id])
+}
+
+model ConditionFermeture {
+  id          Int      @id @default(autoincrement())
+  description String   // Description de la condition de fermeture
+  organeId    Int      // Clé étrangère vers l'organe
+  organe      Organe   @relation(fields: [organeId], references: [id])
+}
+
+model Niveau {
+  id          Int    @id @default(autoincrement())
+  instrument  String    // Instrument associé
+  reglage     String       // Réglage
+  action      String    // Action
+  organeId    Int       // Clé étrangère vers l'organe
+  organe      Organe    @relation(fields: [organeId], references: [id])
+
+  RegroupementNiveaux RegroupementNiveaux[] // Relation avec le regroupement des niveaux
+}
+
+model ConditionManoeuvre {
+  id          Int       @id @default(autoincrement())
+  description String    // Description de la condition de manœuvre
+  organeId    Int       // Clé étrangère vers l'organe
+  organe      Organe    @relation(fields: [organeId], references: [id])
+  etapes      Etape[]   // Relation avec les étapes
+}
+
+model Etape {
+  id                   Int          @id @default(autoincrement())
+  description          String       // Description de l'étape
+  conditionManoeuvreId Int          // Clé étrangère vers la condition de manœuvre
+  conditionManoeuvre   ConditionManoeuvre @relation(fields: [conditionManoeuvreId], references: [id])
+  sousEtapes           SousEtape[]  // Relation avec les sous-étapes
+}
+
+model SousEtape {
+  id          Int    @id @default(autoincrement())
+  description String // Description de la sous-étape
+  etapeId     Int    // Clé étrangère vers l'étape
+  etape       Etape  @relation(fields: [etapeId], references: [id])
+}
+
+// Modèle Alarme
+model Alarme {
+  id          Int          @id @default(autoincrement())
+  nom         String       // Nom structuré : "nomPartie + nomCircuit + valeurParametre"
+  description String       // Description de l'alarme
+  instructions Instruction[] // Séquence d'instructions ordonnées
+  consequence  String       // Conséquence de l'alarme
+  circuitId    Int          // Clé étrangère vers le circuit
+  circuit      Circuit      @relation(fields: [circuitId], references: [id])
+
+  Parametre Parametre[]
+}
+
+model Instruction {
+  id          Int      @id @default(autoincrement())
+  ordre       Int      // Ordre de l'instruction dans la séquence
+  description String   // Description de l'instruction
+  alarmeId    Int      // Clé étrangère vers l'alarme
+  alarme      Alarme   @relation(fields: [alarmeId], references: [id])
+}
+
+// Modèle RegroupementNiveaux : permet de regrouper des organes et leurs niveaux
+model RegroupementNiveaux {
+  id          Int       @id @default(autoincrement())  // Identifiant unique du regroupement
+  nom         String    // Nom du regroupement (par exemple : "Groupe 1", "Section A")
+  description String?   // Description du regroupement, facultative
+  organes     Organe[]  // Liste des organes associés à ce regroupement
+  niveaux     Niveau[]  // Liste des niveaux associés à ce regroupement
+  createdAt   DateTime  @default(now())  // Date de création du regroupement
+  updatedAt   DateTime  @updatedAt       // Date de dernière mise à jour
+}
+model Parametre {
+id   Int @id @default(autoincrement())
+nom String
+description String
+alarme Alarme @relation(fields: [alarmeid], references: [id])
+alarmeid Int
 }
