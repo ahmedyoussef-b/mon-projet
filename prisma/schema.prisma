@@ -153,7 +153,7 @@ model Alarme {
   id          Int          @id @default(autoincrement())
   nom         String       // Nom structuré : "nomPartie + nomCircuit + valeurParametre"
   description String       // Description de l'alarme
-  instructions Instruction[] // Séquence d'instructions ordonnées
+  instruction Instruction[] // Séquence d'instructions ordonnées
   consequence  String       // Conséquence de l'alarme
   circuitId    Int          // Clé étrangère vers le circuit
   circuit      Circuit      @relation(fields: [circuitId], references: [id])

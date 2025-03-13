@@ -86,12 +86,12 @@ export async function POST(req: Request) {
 
       if (nomOrgane) {
         const niveaux = await prisma.niveau.findMany({
-          where: { organe: { nomSpecifique: { contains: nomOrgane, mode: "insensitive" } } },
+          where: { organe: { nomSpecifique: { equals: nomOrgane, mode: "insensitive" } } },
           include: { organe: true },
           orderBy: { id: "asc" },
         });
 
-console.log("niveaux" ,niveaux) 
+
 
         if (niveaux.length === 0) {
           return NextResponse.json({ error: `Aucun niveau trouvé pour l'organe "${nomOrgane}".` }, { status: 404 });
@@ -110,7 +110,7 @@ console.log("niveaux" ,niveaux)
             return NextResponse.json({
               type: "exact",
               result: niveauExact,
-              vocalMessage: `Détails pour le niveau ${formattedReglage} Milimetres.`,
+              vocalMessage: `Détails pour le niveau ${formattedReglage} .`,
             });
           } else {
             const niveauxTries = niveaux.sort((a, b) => {
@@ -254,10 +254,11 @@ console.log("niveaux" ,niveaux)
       // Rechercher dans la BDD si une alarme correspond au mot-clé
       const alarme = await prisma.alarme.findFirst({
         where: {
-          nom: alarmeKeyword, // Recherche exacte du mot-clé dans le nom de l'alarme
+          nom: alarmeKeyword,
+           // Recherche exacte du mot-clé dans le nom de l'alarme
         },
         include: {
-          instructions: true, // Inclure les instructions associées
+          instruction: true, // Inclure les instructions associées
           Parametre: true, // Inclure les paramètres associés
           circuit: true, // Inclure le circuit associé
         },

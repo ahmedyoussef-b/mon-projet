@@ -1,4 +1,5 @@
 // src/hooks/useTextToSpeech.ts
+"use client"
 import { useState, useCallback } from "react";
 
 export function useTextToSpeech() {

@@ -132,7 +132,7 @@ async function main() {
                                                 },
                                                ]},
                                         consequence: 'Déclenchement de la pompe CEX',
-                                        instructions: {
+                                        instruction: {
                                             create: [
                                                 { ordre: 1, description: 'Vérifier la température des paliers' },
                                                 { ordre: 2, description: 'Arrêter la pompe CEX si la température dépasse 90°C' },
@@ -151,7 +151,7 @@ async function main() {
                                                 
                                             ]
                                         },                                        consequence: 'Déclenchement de la pompe CEX',
-                                        instructions: {
+                                        instruction: {
                                             create: [
                                                 { ordre: 1, description: 'Vérifier la température des enroulements' },
                                                 { ordre: 2, description: 'Arrêter la pompe CEX si la température dépasse 130°C' },
@@ -170,7 +170,7 @@ async function main() {
                                                 ]
                                         },
                                         consequence: 'Déclenchement de la pompe CEX',
-                                        instructions: {
+                                        instruction: {
                                             create: [
                                                 { ordre: 1, description: 'Vérifier les vibrations' },
                                                 { ordre: 2, description: 'Arrêter la pompe CEX si les vibrations dépassent 4,5 mm/s' },

@@ -1,3 +1,4 @@
+//src/app/api/alarme/ajouter/route.ts
 import { NextResponse } from "next/server";
 import { PrismaClient } from "@prisma/client";
 
@@ -5,17 +6,25 @@ const prisma = new PrismaClient();
 
 export async function POST(req: Request) {
     try {
-        const { nom, description, instructions, consequence, circuitId, parametres } =
-            await req.json();
+        const { nom, description, instructions, consequence, circuitId, parametres } = await req.json();
+
+        // Validation des données
+        if (!nom || !description || !instructions || !consequence || !circuitId || !parametres) {
+            return NextResponse.json(
+                { error: "Tous les champs sont obligatoires" },
+                { status: 400 }
+            );
+        }
 
         // Créer une nouvelle alarme
         const nouvelleAlarme = await prisma.alarme.create({
             data: {
                 nom,
                 description,
-                instructions: {
-                    create: instructions.map((instruction: string) => ({
+                instruction: {
+                    create: instructions.map((instruction: string, index: number) => ({
                         description: instruction,
+                        ordre: index + 1, // Ajoutez la propriété `ordre`
                     })),
                 },
                 consequence,
@@ -28,7 +37,7 @@ export async function POST(req: Request) {
                 },
             },
             include: {
-                instructions: true,
+                instruction: true,
                 Parametre: true,
                 circuit: true,
             },
